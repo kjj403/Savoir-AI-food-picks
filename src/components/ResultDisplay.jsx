@@ -125,13 +125,21 @@ function ThinkingTicker() {
 
 function friendlyApiMessage(message) {
   const m = String(message)
-  if (/API 키|VITE_OPENAI|api key/i.test(m)) {
+  // OpenAI는 한도 초과·결제 문제도 429로 줄 때가 많아, 숫자 429만 보고 "잠시 후"로 묶지 않는다.
+  if (
+    /insufficient_quota|billing|payment|exceeded your current quota|credit balance|usage limit/i.test(
+      m,
+    )
+  ) {
+    return 'OpenAI 사용 한도나 결제(크레딧)를 확인해 주세요. https://platform.openai.com/settings/organization/billing 에서 요금·한도를 점검한 뒤 잠시 후 다시 시도해 주세요.'
+  }
+  if (/API 키|VITE_OPENAI|api key|401|invalid_api_key|Incorrect API key/i.test(m)) {
     return import.meta.env.PROD
       ? 'API 키가 필요해요. Vercel → Settings → Environment Variables에 VITE_OPENAI_API_KEY를 넣고 Redeploy 해 주세요.'
       : 'API 키가 필요해요. 프로젝트 루트의 .env에 VITE_OPENAI_API_KEY를 넣고 서버를 다시 켜 주세요.'
   }
-  if (/429|rate|too many/i.test(m)) {
-    return '요청이 많아 잠시 쉬었다가 다시 시도해 주세요.'
+  if (/\b429\b|rate[_\s-]*limit|too many requests|Request too large|TPM|RPM/i.test(m)) {
+    return '요청이 많아 잠시 쉬었다가 다시 시도해 주세요. 계속되면 OpenAI 대시보드에서 분당 요청·토큰 한도를 확인해 주세요.'
   }
   if (/network|fetch|Failed to fetch/i.test(m)) {
     return '네트워크를 확인한 뒤 다시 시도해 주세요.'
