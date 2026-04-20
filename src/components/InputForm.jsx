@@ -17,7 +17,7 @@ function OptionGrid({ title, options, field, value, onChange, disabled }) {
               onClick={() => onChange(field, opt.id)}
               aria-pressed={selected}
               className={[
-                'group flex min-h-[3.25rem] min-w-0 flex-col items-center justify-center gap-1 rounded-2xl border-2 px-2.5 py-4 text-center transition-all duration-300 sm:min-h-[3rem] sm:px-3 sm:py-3',
+                'group flex min-h-[3rem] min-w-0 flex-col items-center justify-center gap-0.5 rounded-2xl border-2 px-1.5 py-3 text-center transition-all duration-300 sm:min-h-[2.875rem] sm:px-2 sm:py-2.5',
                 'hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400',
                 selected
                   ? 'border-orange-400 bg-gradient-to-br from-orange-100 to-amber-50 shadow-md ring-2 ring-orange-300/60 dark:from-orange-900/40 dark:to-amber-900/30 dark:ring-orange-500/40'
@@ -26,12 +26,12 @@ function OptionGrid({ title, options, field, value, onChange, disabled }) {
               ].join(' ')}
             >
               <span
-                className="text-3xl transition-transform duration-300 group-hover:scale-110 sm:text-3xl"
+                className="text-2xl transition-transform duration-300 group-hover:scale-110 sm:text-[1.65rem]"
                 aria-hidden
               >
                 {opt.emoji}
               </span>
-              <span className="max-w-[100%] break-words text-xs font-medium leading-snug text-slate-800 dark:text-slate-100 sm:text-sm">
+              <span className="max-w-full hyphens-auto break-words text-[10px] font-medium leading-tight text-slate-800 [overflow-wrap:anywhere] dark:text-slate-100 sm:text-[11px] md:text-xs md:leading-snug">
                 {opt.label}
               </span>
             </button>

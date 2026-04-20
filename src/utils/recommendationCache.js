@@ -1,4 +1,4 @@
-const KEY = 'food-app-reco-cache-v6'
+const KEY = 'food-app-reco-cache-v7'
 const TTL_MS = 12 * 60 * 1000
 
 function read() {

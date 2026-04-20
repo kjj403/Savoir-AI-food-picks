@@ -126,7 +126,9 @@ function ThinkingTicker() {
 function friendlyApiMessage(message) {
   const m = String(message)
   if (/API 키|VITE_OPENAI|api key/i.test(m)) {
-    return 'API 키가 필요해요. 프로젝트 루트의 .env에 VITE_OPENAI_API_KEY를 넣고 서버를 다시 켜 주세요.'
+    return import.meta.env.PROD
+      ? 'API 키가 필요해요. Vercel → Settings → Environment Variables에 VITE_OPENAI_API_KEY를 넣고 Redeploy 해 주세요.'
+      : 'API 키가 필요해요. 프로젝트 루트의 .env에 VITE_OPENAI_API_KEY를 넣고 서버를 다시 켜 주세요.'
   }
   if (/429|rate|too many/i.test(m)) {
     return '요청이 많아 잠시 쉬었다가 다시 시도해 주세요.'
@@ -210,7 +212,7 @@ export function ResultDisplay({
       <div className="rounded-3xl border border-white/60 bg-white/85 p-6 shadow-xl shadow-orange-200/30 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/80 dark:shadow-none">
         <div className="mb-2 flex flex-wrap items-center justify-center gap-2">
           <span className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-bold text-violet-900 dark:border-violet-700 dark:bg-violet-950/50 dark:text-violet-100">
-            GPT-4o
+            AI
           </span>
           <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
             맞춤 추론 중

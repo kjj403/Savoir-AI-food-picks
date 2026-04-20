@@ -40,6 +40,7 @@ function buildUserPrompt(values) {
     'reasonSummary must tie the dish to these labels with concrete (non-poetic) reasons.',
     'Health insight must reference these labels and give sodium % of 2300mg day, meal timing vs workout if relevant.',
     'Nutrition comparison: pick a well-known heavier Korean meal as reference for calorie ratio.',
+    'mealAlternatives: output exactly 4 items—Korean sides or add-ons that PAIR with the main dish (e.g. 떡볶이 → 튀김, 순대, 김밥, 어묵). Not substitute meals or "healthier swaps"; classic flavor/texture combos. Korean oneLiners explain the pairing.',
   ].join('\n')
 }
 
@@ -71,9 +72,11 @@ Schema:
   },
   "warning": "2-4 sentences Korean: who should limit / sodium note",
   "mealAlternatives": [
-    { "name": "Korean dish name", "oneLiner": "why try this instead" }
+    { "name": "Korean side or add-on (short)", "oneLiner": "Korean: why it goes with the main dish above (pairing, not a substitute meal)" }
   ]
 }
+
+mealAlternatives: always 4 entries. Each must complement "food" (street-food sets, 반찬, 튀김·순대·김밥 같은 조합). Never frame as lower-calorie or "instead of" the main pick.
 
 Estimate nutrition for one typical Korean serving. calorieRatio = this meal calories / reference meal calories.`
 
@@ -187,7 +190,9 @@ export default function App() {
       setError('')
       if (!hasApiKey()) {
         setError(
-          'API 키가 없어요. 프로젝트 루트의 .env에 VITE_OPENAI_API_KEY를 추가한 뒤 개발 서버를 다시 실행해 주세요.',
+          import.meta.env.PROD
+            ? 'API 키가 없어요. Vercel 환경 변수에 VITE_OPENAI_API_KEY를 추가한 뒤 Redeploy 하세요.'
+            : 'API 키가 없어요. 프로젝트 루트의 .env에 VITE_OPENAI_API_KEY를 추가한 뒤 개발 서버를 다시 실행해 주세요.',
         )
         return
       }
@@ -385,11 +390,25 @@ export default function App() {
           className="relative z-20 border-b border-amber-300/80 bg-amber-100/95 px-4 py-3 text-center text-sm font-medium text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/90 dark:text-amber-100"
           role="alert"
         >
-          <strong className="font-semibold">API 키가 보이지 않아요.</strong> 루트의 .env에{' '}
-          <code className="rounded bg-white/60 px-1.5 py-0.5 font-mono text-xs dark:bg-slate-800">
-            VITE_OPENAI_API_KEY
-          </code>{' '}
-          를 넣고 <code className="font-mono text-xs">npm run dev</code>를 다시 실행해 주세요.
+          {import.meta.env.PROD ? (
+            <>
+              <strong className="font-semibold">API 키가 빌드에 없어요.</strong> Vercel 프로젝트 →{' '}
+              <strong>Settings → Environment Variables</strong>에{' '}
+              <code className="rounded bg-white/60 px-1.5 py-0.5 font-mono text-xs dark:bg-slate-800">
+                VITE_OPENAI_API_KEY
+              </code>
+              를 넣고 <strong>Production</strong>에 체크한 뒤,{' '}
+              <strong>Deployments → Redeploy</strong>로 다시 배포해 주세요.
+            </>
+          ) : (
+            <>
+              <strong className="font-semibold">API 키가 보이지 않아요.</strong> 루트의 .env에{' '}
+              <code className="rounded bg-white/60 px-1.5 py-0.5 font-mono text-xs dark:bg-slate-800">
+                VITE_OPENAI_API_KEY
+              </code>{' '}
+              를 넣고 <code className="font-mono text-xs">npm run dev</code>를 다시 실행해 주세요.
+            </>
+          )}
         </div>
       )}
 
@@ -414,7 +433,7 @@ export default function App() {
             </button>
           </div>
           <p className="max-w-2xl text-sm leading-relaxed text-slate-800 dark:text-slate-300 lg:text-base">
-            매칭 점수·영양 맥락·맞춤 건강 인사이트까지. GPT-4o가 한 끼를 설계해요.
+            오늘 점메추 고민은 여기서 끝. 분위기만 골라 보세요—Savoir가 한 끼를 뽑아 줄게요.
           </p>
         </header>
 
@@ -461,7 +480,7 @@ export default function App() {
         </div>
 
         <footer className="mt-14 border-t border-white/40 pt-8 text-center text-sm text-slate-600 dark:border-slate-700 dark:text-slate-400">
-          Savoir — GPT-4o 기반 데모
+          Savoir — AI 점메추 데모
         </footer>
       </div>
     </div>

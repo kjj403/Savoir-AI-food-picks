@@ -23,7 +23,7 @@ export function normalizeNutrition(raw) {
 }
 
 /**
- * @param {object} parsed - raw GPT JSON
+ * @param {object} parsed - raw API JSON
  * @param {{ weather: string, hunger: string, mood: string, budget: string }} labels
  */
 export function normalizeRecommendation(parsed, labels) {
@@ -67,7 +67,7 @@ export function normalizeRecommendation(parsed, labels) {
 
   const alt = Array.isArray(parsed?.mealAlternatives) ? parsed.mealAlternatives : []
   const mealAlternatives = alt
-    .slice(0, 4)
+    .slice(0, 6)
     .map((a) => ({
       name: String(a?.name ?? '').trim(),
       oneLiner: String(a?.oneLiner ?? '').trim(),
