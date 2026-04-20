@@ -22,8 +22,7 @@
 
 ## 라이브 데모
 
-- **프로덕션 (Vercel):** [https://pick-my-lunch-4855dvqwv-jinjukims-projects-1a82a6f6.vercel.app](https://pick-my-lunch-4855dvqwv-jinjukims-projects-1a82a6f6.vercel.app)  
-  Vercel **Domains**에 표시된 대표 주소(예: `*.vercel.app` 한 줄)가 바뀌면, 위 링크를 그 주소로 맞춰 주세요. 배포별 해시 URL은 새 배포마다 달라질 수 있습니다.
+- **프로덕션 (Vercel):** [https://savoir-ai-food-picks.vercel.app](https://savoir-ai-food-picks.vercel.app)  
 
 ## 로컬에서 실행
 
