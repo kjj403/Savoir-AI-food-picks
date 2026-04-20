@@ -5,7 +5,6 @@
 ## 로컬에서 실행
 
 ```bash
-cd food-app
 cp .env.example .env
 # .env 안에 VITE_OPENAI_API_KEY=... 입력
 npm install
@@ -32,3 +31,7 @@ npm run preview
 React 19, Vite, Tailwind CSS v4, OpenAI JS SDK, canvas-confetti.
 
 프로덕션에서는 API 키를 브라우저에 넣지 말고 백엔드 프록시를 쓰는 것이 안전합니다.
+
+## 배포 (Vercel)
+
+저장소 루트가 곧 앱 폴더입니다. Vercel 프로젝트 설정에서 **Root Directory**를 비우거나 `.` 로 두고, 환경 변수 `VITE_OPENAI_API_KEY`를 넣으면 됩니다. (이전에 `food-app`으로 지정했다면 제거하세요.)

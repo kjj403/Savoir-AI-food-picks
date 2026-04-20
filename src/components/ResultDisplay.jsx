@@ -126,7 +126,7 @@ function ThinkingTicker() {
 function friendlyApiMessage(message) {
   const m = String(message)
   if (/API 키|VITE_OPENAI|api key/i.test(m)) {
-    return 'API 키가 필요해요. food-app/.env에 VITE_OPENAI_API_KEY를 넣고 서버를 다시 켜 주세요.'
+    return 'API 키가 필요해요. 프로젝트 루트의 .env에 VITE_OPENAI_API_KEY를 넣고 서버를 다시 켜 주세요.'
   }
   if (/429|rate|too many/i.test(m)) {
     return '요청이 많아 잠시 쉬었다가 다시 시도해 주세요.'

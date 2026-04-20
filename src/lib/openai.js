@@ -9,7 +9,7 @@ import { hasApiKey } from '../utils/env'
 export function getOpenAIClient() {
   if (!hasApiKey()) {
     throw new Error(
-      'API 키가 없어요. food-app/.env에 VITE_OPENAI_API_KEY를 설정해 주세요.',
+      'API 키가 없어요. 프로젝트 루트의 .env에 VITE_OPENAI_API_KEY를 설정해 주세요.',
     )
   }
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY

@@ -187,7 +187,7 @@ export default function App() {
       setError('')
       if (!hasApiKey()) {
         setError(
-          'API 키가 없어요. food-app/.env에 VITE_OPENAI_API_KEY를 추가한 뒤 개발 서버를 다시 실행해 주세요.',
+          'API 키가 없어요. 프로젝트 루트의 .env에 VITE_OPENAI_API_KEY를 추가한 뒤 개발 서버를 다시 실행해 주세요.',
         )
         return
       }
@@ -385,7 +385,7 @@ export default function App() {
           className="relative z-20 border-b border-amber-300/80 bg-amber-100/95 px-4 py-3 text-center text-sm font-medium text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/90 dark:text-amber-100"
           role="alert"
         >
-          <strong className="font-semibold">API 키가 보이지 않아요.</strong> food-app/.env에{' '}
+          <strong className="font-semibold">API 키가 보이지 않아요.</strong> 루트의 .env에{' '}
           <code className="rounded bg-white/60 px-1.5 py-0.5 font-mono text-xs dark:bg-slate-800">
             VITE_OPENAI_API_KEY
           </code>{' '}
