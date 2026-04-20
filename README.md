@@ -4,10 +4,7 @@
 
 ## 라이브 데모
 
-배포가 끝나면 Vercel 대시보드 **Domains**에 표시된 URL을 아래에 넣어 두세요.
-
-- **프로덕션:** [https://savoir-ai-food-picks.vercel.app](https://savoir-ai-food-picks.vercel.app)  
-  (실제 주소가 다르면 이 줄의 링크와 텍스트를 본인 도메인으로 바꿉니다.)
+- **프로덕션 (Vercel):** [https://savoir-ai-food-picks.vercel.app](https://savoir-ai-food-picks.vercel.app)
 
 ## 로컬에서 실행
 
