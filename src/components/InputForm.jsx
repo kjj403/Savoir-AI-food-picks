@@ -1,12 +1,25 @@
-import { WEATHER, HUNGER, MOOD, BUDGET, CUISINE, defaultInputValues } from '../data/foodOptions'
+import {
+  WEATHER,
+  HUNGER,
+  MOOD,
+  BUDGET,
+  CUISINE,
+  EXERCISE_LINK,
+  NUTRIENT_FOCUS,
+  defaultInputValues,
+} from '../data/foodOptions'
 
-function OptionGrid({ title, options, field, value, onChange, disabled }) {
+const GRID_DEFAULT =
+  'grid grid-cols-1 gap-2.5 min-[400px]:grid-cols-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5'
+const GRID_FOUR = 'grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3'
+
+function OptionGrid({ title, options, field, value, onChange, disabled, gridClassName = GRID_DEFAULT }) {
   return (
     <fieldset className="space-y-3">
       <legend className="mb-1 text-base font-semibold text-slate-700 dark:text-slate-200 sm:text-sm">
         {title}
       </legend>
-      <div className="grid grid-cols-1 gap-2.5 min-[400px]:grid-cols-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
+      <div className={gridClassName}>
         {options.map((opt) => {
           const selected = value === opt.id
           return (
@@ -54,6 +67,10 @@ export function InputForm({
     onChange?.({ ...v, [field]: id })
   }
 
+  function handleText(field) {
+    return (e) => onChange?.({ ...v, [field]: e.target.value })
+  }
+
   function handleSubmit(e) {
     e.preventDefault()
     onSubmit?.(v)
@@ -67,7 +84,7 @@ export function InputForm({
       <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
-            What&apos;s the vibe today?
+            오늘 무드는 어때요?
           </h2>
           <p className="mt-2 text-base leading-relaxed text-slate-600 dark:text-slate-400 sm:mt-1 sm:text-sm">
             한 줄마다 하나씩 골라 주세요. 손가락에 닿기 쉽게 크게 만들어 두었어요.
@@ -77,7 +94,7 @@ export function InputForm({
 
       <div className="space-y-8">
         <OptionGrid
-          title="Weather"
+          title="날씨"
           options={WEATHER}
           field="weather"
           value={v.weather}
@@ -85,7 +102,7 @@ export function InputForm({
           disabled={disabled}
         />
         <OptionGrid
-          title="Hunger level"
+          title="배고픔"
           options={HUNGER}
           field="hunger"
           value={v.hunger}
@@ -93,7 +110,7 @@ export function InputForm({
           disabled={disabled}
         />
         <OptionGrid
-          title="Mood"
+          title="기분"
           options={MOOD}
           field="mood"
           value={v.mood}
@@ -101,7 +118,7 @@ export function InputForm({
           disabled={disabled}
         />
         <OptionGrid
-          title="Budget"
+          title="예산"
           options={BUDGET}
           field="budget"
           value={v.budget}
@@ -109,13 +126,66 @@ export function InputForm({
           disabled={disabled}
         />
         <OptionGrid
-          title="Cuisine"
+          title="요리 종류"
           options={CUISINE}
           field="cuisine"
           value={v.cuisine}
           onChange={handleFieldChange}
           disabled={disabled}
         />
+
+        <div className="border-t border-dashed border-orange-200/80 pt-8 dark:border-slate-600">
+          <h3 className="mb-4 text-sm font-bold text-slate-800 dark:text-slate-100">
+            몸 상태 · 취향 (선택)
+          </h3>
+          <div className="space-y-5">
+            <fieldset>
+              <legend className="mb-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                알레르기
+              </legend>
+              <textarea
+                name="allergies"
+                rows={2}
+                value={v.allergies}
+                onChange={handleText('allergies')}
+                disabled={disabled}
+                placeholder="예: 우유, 새우, 밀 (없으면 비워 두세요)"
+                className="w-full resize-y rounded-2xl border-2 border-white/70 bg-white/85 px-3 py-2.5 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-200/80 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:bg-slate-800/90 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-orange-500/60"
+              />
+            </fieldset>
+            <fieldset>
+              <legend className="mb-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                싫어하는 음식·맛
+              </legend>
+              <textarea
+                name="dislikes"
+                rows={2}
+                value={v.dislikes}
+                onChange={handleText('dislikes')}
+                disabled={disabled}
+                placeholder="예: 오이, 비린 생선, 너무 매운 것"
+                className="w-full resize-y rounded-2xl border-2 border-white/70 bg-white/85 px-3 py-2.5 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-200/80 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:bg-slate-800/90 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-orange-500/60"
+              />
+            </fieldset>
+            <OptionGrid
+              title="운동과 한 끼"
+              options={EXERCISE_LINK}
+              field="exerciseTiming"
+              value={v.exerciseTiming}
+              onChange={handleFieldChange}
+              disabled={disabled}
+              gridClassName={GRID_FOUR}
+            />
+            <OptionGrid
+              title="영양 포인트"
+              options={NUTRIENT_FOCUS}
+              field="nutrientFocus"
+              value={v.nutrientFocus}
+              onChange={handleFieldChange}
+              disabled={disabled}
+            />
+          </div>
+        </div>
       </div>
 
       <div className="mt-10 flex justify-center">
@@ -125,7 +195,7 @@ export function InputForm({
           className="btn-bounce-hover inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-rose-500 px-10 py-4 text-lg font-bold text-white shadow-xl shadow-orange-500/40 transition hover:shadow-2xl hover:shadow-orange-500/45 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[3.75rem] sm:max-w-none sm:px-12"
         >
           <span aria-hidden>✨</span>
-          {disabled ? '맛 찾는 중…' : 'Surprise me'}
+          {disabled ? '맛 찾는 중…' : '추천받기'}
         </button>
       </div>
     </form>

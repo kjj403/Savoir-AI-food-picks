@@ -1,7 +1,16 @@
 import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { InputForm } from './components/InputForm'
 import { ResultDisplay } from './components/ResultDisplay'
-import { WEATHER, HUNGER, MOOD, BUDGET, CUISINE, defaultInputValues } from './data/foodOptions'
+import {
+  WEATHER,
+  HUNGER,
+  MOOD,
+  BUDGET,
+  CUISINE,
+  EXERCISE_LINK,
+  NUTRIENT_FOCUS,
+  defaultInputValues,
+} from './data/foodOptions'
 import { getOpenAIClient } from './lib/openai'
 import { saveToHistory, checkRepeat } from './utils/storage'
 import { hasApiKey } from './utils/env'
@@ -49,14 +58,57 @@ function buildUserPrompt(values) {
               ? 'STRICT: 양식만. 메인은 서양식(파스타·스테이크·샐러드·버거·리조또 등). mealAlternatives는 같은 양식 흐름의 수프·브레드·사이드.'
               : ''
 
+  const allergies = String(values.allergies ?? '').trim()
+  const dislikes = String(values.dislikes ?? '').trim()
+  const exLabel = labelById(EXERCISE_LINK, values.exerciseTiming)
+  const nfLabel = labelById(NUTRIENT_FOCUS, values.nutrientFocus)
+
+  const allergyBlock = allergies
+    ? `CRITICAL safety: user is allergic or must avoid: "${allergies}". Never recommend dishes containing these (including sauces, broths, hidden ingredients). mealAlternatives must also be safe. If ambiguous, choose safer options.`
+    : 'No allergies listed.'
+
+  const dislikeBlock = dislikes
+    ? `User strongly dislikes (avoid as dominant flavor/ingredient): "${dislikes}".`
+    : 'No dislikes listed.'
+
+  const exerciseBlock =
+    values.exerciseTiming === 'none'
+      ? 'Exercise link: not specified—healthInsight may still mention meal timing generally.'
+      : values.exerciseTiming === 'before'
+        ? 'Exercise: user eats BEFORE workout—prefer digestible carbs, moderate fat, not overly heavy; healthInsight.hook and bestTimeToEat MUST connect to pre-workout fueling (운동 전 에너지).'
+        : values.exerciseTiming === 'after'
+          ? 'Exercise: user eats AFTER workout—prioritize protein + carbs for recovery; hook and bestTimeToEat MUST mention post-workout refueling (운동 후 회복).'
+          : values.exerciseTiming === 'rest'
+            ? 'Exercise: rest/light day—lighter or comfort meals OK; mention in hook when relevant.'
+            : ''
+
+  const nutrientBlock = (() => {
+    switch (values.nutrientFocus) {
+      case 'high_protein':
+        return 'Nutrient priority: HIGH PROTEIN—main dish must be protein-rich (meat, fish, eggs, tofu, legumes as fits cuisine). Cite protein in reasonSummary; goalConnection ties to 단백질·근육·회복.'
+      case 'more_veggies':
+        return 'Nutrient priority: vegetables & fiber—favor vegetable-heavy, salad, or stir-fry with lots of greens within cuisine.'
+      case 'low_sodium':
+        return 'Nutrient priority: lower sodium—prefer steamed/boiled/less salty dishes; expand warning about sodium.'
+      case 'lighter':
+        return 'Nutrient priority: lighter meal—favor grilled, clear soups, smaller fried portions within cuisine.'
+      default:
+        return 'Nutrient priority: balanced plate.'
+    }
+  })()
+
   return [
     'Recommend ONE specific meal (pick a single winner).',
     cuisineConstraint,
-    `User labels (use verbatim in analysis): weather="${w}", hunger="${h}", mood="${m}", budget="${b}", cuisine="${c}".`,
+    allergyBlock,
+    dislikeBlock,
+    exerciseBlock,
+    nutrientBlock,
+    `User labels (use verbatim in analysis): weather="${w}", hunger="${h}", mood="${m}", budget="${b}", cuisine="${c}", allergies="${allergies || '없음'}", dislikes="${dislikes || '없음'}", exerciseTiming="${exLabel}", nutrientFocus="${nfLabel}".`,
     'reasonSummary must tie the dish to these labels with concrete (non-poetic) reasons.',
-    'Health insight must reference these labels and give sodium % of 2300mg day, meal timing vs workout if relevant.',
+    'Health insight must reference these labels and give sodium % of 2300mg day; strongly connect meal timing to exercise when exerciseTiming is not "보통".',
     'Nutrition comparison: referenceFood must be a heavier well-known meal in the SAME cuisine as your pick; calorieRatio = this meal / that reference.',
-    'mealAlternatives: exactly 4 items—sides or add-ons that PAIR with the main dish in the SAME cuisine. Not substitute meals or "healthier swaps". oneLiner in Korean.',
+    'mealAlternatives: exactly 4 items—sides or add-ons that PAIR with the main dish in the SAME cuisine. Not substitute meals or "healthier swaps". oneLiner in Korean. Must also respect allergy/dislike rules.',
   ].join('\n')
 }
 
@@ -95,6 +147,8 @@ Schema:
 mealAlternatives: always 4 entries. Each must complement "food" in the same cuisine (e.g. 한식 분식 세트, 중식 반찬, 일식 곁들임). Never frame as lower-calorie or "instead of" the main pick.
 
 If the user specified a cuisine (한/중/일/양), "food" and every mealAlternative MUST stay in that cuisine. If 아무거나, any cuisine is allowed.
+
+If the user listed allergies, never output dish names or sides that contain those allergens.
 
 Estimate nutrition for one typical serving. calorieRatio = this meal calories / reference meal calories.`
 
@@ -223,6 +277,8 @@ export default function App() {
         mood: labelById(MOOD, values.mood),
         budget: labelById(BUDGET, values.budget),
         cuisine: labelById(CUISINE, values.cuisine),
+        exerciseTiming: labelById(EXERCISE_LINK, values.exerciseTiming),
+        nutrientFocus: labelById(NUTRIENT_FOCUS, values.nutrientFocus),
       }
 
       if (!skipCache) {
@@ -265,7 +321,7 @@ export default function App() {
             { role: 'system', content: RECO_SYSTEM },
             {
               role: 'user',
-              content: `${userPrompt}\nLabels for hook line: mood="${labels.mood}", hunger="${labels.hunger}", budget="${labels.budget}", weather="${labels.weather}", cuisine="${labels.cuisine}".`,
+              content: `${userPrompt}\nLabels for hook line: mood="${labels.mood}", hunger="${labels.hunger}", budget="${labels.budget}", weather="${labels.weather}", cuisine="${labels.cuisine}", exercise="${labels.exerciseTiming}", nutrient="${labels.nutrientFocus}".`,
             },
           ],
         })
@@ -344,6 +400,17 @@ export default function App() {
           i.cuisine && i.cuisine !== 'any'
             ? `요리 종류(고정): ${cuisineLabel} — 이 풍미·스타일에 맞는 집밥 레시피로.`
             : ''
+        const allergyLine = String(i.allergies ?? '').trim()
+          ? `알레르기(절대 넣지 말 것): ${i.allergies}`
+          : ''
+        const dislikeLine = String(i.dislikes ?? '').trim()
+          ? `피할 재료·맛: ${i.dislikes}`
+          : ''
+        const exLab = labelById(EXERCISE_LINK, i.exerciseTiming)
+        const nfLab = labelById(NUTRIENT_FOCUS, i.nutrientFocus)
+        const contextLine = [exLab !== '보통' ? `운동·식사: ${exLab}` : '', nfLab !== '균형' ? `영양: ${nfLab}` : '']
+          .filter(Boolean)
+          .join(' · ')
         const variantNote =
           variant === 'spicier'
             ? 'Rewrite the recipe to be SPICIER for Korean taste (gochugaru, cheongyang, etc.). Keep JSON schema.'
@@ -363,6 +430,9 @@ export default function App() {
                 `한 줄 요약: ${reasonSummary}`,
                 `예산 느낌: ${budgetLabel}`,
                 cuisineLine,
+                allergyLine,
+                dislikeLine,
+                contextLine ? `추가 맥락: ${contextLine}` : '',
                 variantNote,
               ]
                 .filter(Boolean)
@@ -464,17 +534,17 @@ export default function App() {
           </p>
         </header>
 
-        <div className="grid gap-6 lg:grid-cols-12 lg:items-start lg:gap-8 xl:gap-10">
-          <div className="min-w-0 lg:col-span-5">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-10 md:max-w-4xl lg:gap-12">
+          <section className="min-w-0 w-full" aria-label="오늘의 분위기와 취향">
             <InputForm
               values={input}
               onChange={setInput}
               onSubmit={(v) => runRecommendation(v)}
               disabled={loading}
             />
-          </div>
+          </section>
 
-          <div className="min-w-0 lg:col-span-7">
+          <section className="min-w-0 w-full" aria-label="추천 결과">
             <ResultDisplay
               loading={loading}
               dish={dish}
@@ -503,7 +573,7 @@ export default function App() {
               liked={liked}
               actionsDisabled={loading}
             />
-          </div>
+          </section>
         </div>
 
         <footer className="mt-14 border-t border-white/40 pt-8 text-center text-sm text-slate-600 dark:border-slate-700 dark:text-slate-400">

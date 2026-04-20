@@ -24,7 +24,7 @@ export function normalizeNutrition(raw) {
 
 /**
  * @param {object} parsed - raw API JSON
- * @param {{ weather: string, hunger: string, mood: string, budget: string }} labels
+ * @param {{ weather: string, hunger: string, mood: string, budget: string, cuisine?: string, exerciseTiming?: string, nutrientFocus?: string }} labels
  */
 export function normalizeRecommendation(parsed, labels) {
   const dish = String(parsed?.food ?? parsed?.dish ?? '').trim() || '오늘의 한 끼'
@@ -60,7 +60,14 @@ export function normalizeRecommendation(parsed, labels) {
     goalConnection: String(hi.goalConnection ?? '').trim(),
   }
   if (!healthInsight.hook) {
-    healthInsight.hook = `${labels.mood} 무드 + ${labels.hunger} 배고픔을 고르셨어요. 그에 맞춰 한 끼를 골랐어요.`
+    let hook = `${labels.mood} 무드와 ${labels.hunger} 배고픔을 반영했어요.`
+    if (labels.exerciseTiming && labels.exerciseTiming !== '보통') {
+      hook += ` ${labels.exerciseTiming} 식사 타이밍에 맞춰 골랐어요.`
+    }
+    if (labels.nutrientFocus && labels.nutrientFocus !== '균형') {
+      hook += ` ${labels.nutrientFocus}를 챙기는 방향이에요.`
+    }
+    healthInsight.hook = hook
   }
 
   const warning = String(parsed?.warning ?? hi.warning ?? '').trim()

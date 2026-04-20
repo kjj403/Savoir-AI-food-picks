@@ -238,8 +238,8 @@ export function ResultDisplay({
           여기에 추천이 떨어져요
         </p>
         <p className="mt-3 text-base leading-relaxed">
-          왼쪽에서 분위기를 고르고{' '}
-          <span className="font-semibold text-orange-600 dark:text-amber-400">Surprise me</span>를
+          위에서 분위기를 고르고{' '}
+          <span className="font-semibold text-orange-600 dark:text-amber-400">추천받기</span>를
           눌러보세요
         </p>
       </div>
@@ -247,7 +247,7 @@ export function ResultDisplay({
   }
 
   return (
-    <div className="animate-fade-in-up w-full max-w-none rounded-3xl border border-white/60 bg-gradient-to-br from-white/95 to-amber-50/90 p-5 shadow-xl shadow-orange-200/40 backdrop-blur-md dark:border-slate-700/80 dark:from-slate-900/95 dark:to-slate-900/80 dark:shadow-slate-950/40 sm:p-6">
+    <div className="animate-fade-in-up w-full max-w-none space-y-8 rounded-3xl border border-white/60 bg-gradient-to-br from-white/95 to-amber-50/90 p-5 shadow-xl shadow-orange-200/40 backdrop-blur-md dark:border-slate-700/80 dark:from-slate-900/95 dark:to-slate-900/80 dark:shadow-slate-950/40 sm:space-y-10 sm:p-6">
       {error && dish && (
         <div
           className="mb-4 rounded-2xl border border-red-200 bg-red-50/95 px-4 py-3 text-left text-sm font-medium text-red-900 dark:border-red-900/60 dark:bg-red-950/60 dark:text-red-100"
