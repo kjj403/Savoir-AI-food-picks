@@ -6,6 +6,7 @@ import {
   buildRecommendationUserPrompt,
   resolveValues,
 } from './_lib/prompts.js'
+import { validateRecommendationBody } from './_lib/validate.js'
 
 function normDishLabel(s) {
   return String(s ?? '')
@@ -17,6 +18,12 @@ function normDishLabel(s) {
 export default async function handler(req, res) {
   const guard = await runGuards(req, res)
   if (guard.handled) return
+
+  const validationError = validateRecommendationBody(guard.body)
+  if (validationError) {
+    res.status(400).json({ error: validationError })
+    return
+  }
 
   const values = resolveValues(guard.body.values)
   const excludeDish =

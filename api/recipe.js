@@ -1,21 +1,19 @@
 import { runGuards } from './_lib/guards.js'
 import { getServerOpenAI } from './_lib/openaiServer.js'
 import { RECIPE_SYSTEM, buildRecipeUserPrompt } from './_lib/prompts.js'
+import { validateRecipeBody } from './_lib/validate.js'
 
 export default async function handler(req, res) {
   const guard = await runGuards(req, res)
   if (guard.handled) return
 
-  const { dish, reasonSummary, values, variant } = guard.body ?? {}
-  if (!dish || typeof dish !== 'string' || !dish.trim()) {
-    res.status(400).json({ error: 'dish:missing' })
+  const validationError = validateRecipeBody(guard.body)
+  if (validationError) {
+    res.status(400).json({ error: validationError })
     return
   }
-  const allowedVariants = new Set([null, undefined, 'spicier', 'healthier'])
-  if (!allowedVariants.has(variant)) {
-    res.status(400).json({ error: 'variant:invalid' })
-    return
-  }
+
+  const { dish, reasonSummary, values, variant } = guard.body
 
   let client
   try {
